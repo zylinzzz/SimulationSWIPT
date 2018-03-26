@@ -1,12 +1,12 @@
 clear, close all
-Ps = 1;  % The PSD constraint is 1 w
-Pt = 40;
+Ps = 5e-3;  % The PSD constraint is 1 w
+Pt = 1;
 % Bs = 1*10^5; %The bandwidth is 100 KHz
 delta_sq = 1; % The noise covariance
 beta = 0.7; % Variance
 % M = 1; % Number of transmitter antennas
 N = 40; % Number of channels
-Pc = linspace(0,350,13); % Power needed for circuit
+Pc = linspace(0,60,7); % Power needed for circuit
 
 
 for M = [1 2 4 8]
