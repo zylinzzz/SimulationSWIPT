@@ -36,4 +36,8 @@ for i = 1:N-N_E
     P_opt(i) = min(P_opt(i),Ps);
     Pi = Pi-P_opt(i);   
 end
+
+% if isempty(P_opt)
+%     P_opt = 0;
+% end
 P_opt = P_opt';

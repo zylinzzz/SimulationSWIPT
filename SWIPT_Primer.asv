@@ -2,24 +2,24 @@ clear, close all
 Ps = 5e-3;  % The PSD constraint is 1 w
 Pt = 1;
 % Bs = 1*10^5; %The bandwidth is 100 KHz
-delta_sq = 1e-5; % The noise covariance
+delta_sq = 1; % The noise covariance
 beta = 0.7; % Variance
-M = 4; % Number of transmitter antennas
+M = 1; % Number of transmitter antennas
 N = 200; % Number of channels
-points = 13;
-Pc = linspace(0,60e-3,points); % Power needed for circuit
+Pc = linspace(0,60e-3,7); % Power needed for circuit
 d1 = 6;
 H = normrnd(0,beta,M,N)+1j*normrnd(0,beta,M,N); % Modeling the channel
 
 for d2 =  [7,8]
     H = normrnd(0,beta,M,N)+1j*normrnd(0,beta,M,N); % Modeling the channel
     h_sq = zeros(1,N);
-    Q1 = zeros(1,points);
-    Q2 = zeros(1,points);
-    R = zeros(1,points);
+    Q1 = zeros(1,7);
+    Q2 = zeros(1,7);
+    R = zeros(1,7);
     N_E1 = zeros(size(Pc));
-    N_E2 = N*ones(size(Pc));
+    N_E2 = zeros(size(Pc));
     N_I1 = zeros(size(Pc));
+%     N_I2 = zeros(size(Pc));
     
     for k = 1:7
         for i = 1:N
@@ -55,9 +55,9 @@ for d2 =  [7,8]
                     N_E2(k) = 0;
                     break
                 else
-                    Q2(k) = Q2(k) + Ps * h_sq_sorted(i)/d2^2;
+                    Q2(k) = Q2(k) + Ps * h_sq_sorted(i);
                     if Q2(k) > Pc(k)
-                        Q2(k) = Q2(k) - Ps * h_sq_sorted(i)/d2^2;
+                        Q2(k) = Q2(k) - Ps * h_sq_sorted(i);
                         N_E2(k) = i;
                         break
                     end
@@ -72,7 +72,7 @@ for d2 =  [7,8]
         
         %% Calculate the v_opt[n]
         v = zeros(M,N);
-        Pe = zeros(1,points);
+        Pe = zeros(1,13);
         
         %% Pe1
         for i = 1:N_E1(k)
@@ -120,20 +120,15 @@ for d2 =  [7,8]
         
 
         %% Calculate the sum rate
-        for i = N_E1(k)+1:N_I1
-            R(k) = R(k) + log2(1+abs(h_sorted(:,i)' * v(:,i))^2/ ...
-                (d1^2*delta_sq));
-        end   
-        for i = N_I1(k)+1:N
-            R(k) = R(k) + log2(1+abs(h_sorted(:,i)' * v(:,i))^2/ ...
-                (d2^2*delta_sq));
-        end
+        for i = N_E1(k)+1:N
+            R(k) = R(k) + log2(1+abs(h_sorted(:,i)' * v(:,i))^2/delta_sq);
+        end     
     end
     
     plot(Pc,R,'-*')
     hold on
     grid on
 end
-legend('R-NU','R-FU')
+
 xlabel('Circuit Power Consumption (watta)')
 ylabel('Sum-Rate (bits per hertz)')
